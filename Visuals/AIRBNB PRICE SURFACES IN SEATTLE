@@ -1,0 +1,290 @@
+\documentclass[aspectratio=169,xcolor=svgnames]{beamer} 
+\usepackage{bm}
+\input{preambles}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{varwidth}
+\usepackage[utf8]{inputenc}
+\usepackage[font=scriptsize]{caption}
+
+
+% DOCUMENT INFORMATION
+\title[PRICE SURFACES]{Airbnb price surfaces in Seattle}
+\subtitle{Generalized additive models} %optionall + QR
+\author[Andrei Nevskii]{
+	Andrei Nevskii\supersc{1},
+	Prof. Dr. Markus Fritsch\supersc{2}
+}
+\institute[]{%
+    \supersc{1}~Presenting student \\
+    \supersc{2}~Supervisor \\
+}
+\date{\today}
+
+\begin{document}
+
+% TITLE PAGE WITHOUT SIDEBAR
+\begingroup
+\makeatletter
+\setlength{\hoffset}{.5\beamer@sidebarwidth}
+\makeatother
+\begin{frame}[plain]
+\maketitle
+\end{frame}
+\endgroup
+
+% TABLE OF CONTENTS
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{The main goal is to apply some of the techniques from the course to spatial modelling}
+\begin{columns}
+\begin{column}{0.45\textwidth}  %%<--- here
+    \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[width=0.75\textwidth]{Cond mean Regensburg.png}
+     \caption{Price (rent) surface in Regensburg \cite{Knuth1986}}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\end{column}
+
+\begin{column}{0.55\textwidth}
+   \begin{block}{Objective}
+    {
+    Partly reproduce results of (M. Fritsch, H. Haupt, and P. T. Ng, 2016) and predict 
+    price surfaces for Airbnb properties in Seattle.
+    }
+    \end{block}
+    \begin{block}{Methodology}
+    {
+    Applied techniques from the course:
+        \begin{itemize}
+        \item Quantile regression;
+        \item Uni- and bivariate smooth of predictors.
+        \end{itemize}
+    }
+    \end{block}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+\section{Data \& Methodology}
+
+\begin{frame}{Airbnb Data from Seattle includes variables with heavily skewed distributions}
+
+\begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.684\textheight]{Data descr.png}
+     \caption{Histograms of numerical predictors and the target variable}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\begin{itemize}
+        \item 6904 properties listed on Airbnb in Seattle (US) and its surroundings;
+        \item Date of data collection - December 19th, 2018.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{No evidence for severe non-linearity in non-spatial predictors}
+\begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.684\textheight]{Residuals plot.png}
+     \caption{Partial residual plots based on least squares estimation of the baseline multiple linear regression}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\begin{itemize}
+        \item But smoothing splines still could be required.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Three specifications are examined for smooth modeling of spatial heterogeneity}
+Framework for  estimations is the following additive semiparametric model \cite{Knuth1986}:
+ \begin{equation}
+       \underbrace{p}_\text{price} = \underbrace{\mu_1(\bm{z_1}) + \bm{z_2\beta_2}}_\text{structural regression component} +  \underbrace{\eta(\bm{s})}_\text{spatial component} +  \underbrace{\epsilon}_\text{error component}
+   \end{equation}
+
+With three exact specifications:
+\begin{enumerate}
+  \item GAM I: $p = \bm{z_a\beta_a} + \eta(\bm{s}) + \epsilon $;
+  \item GAM II: $p = \bm{\mu_b}(\bm{z_b}) + z_c\beta_c + \eta(\bm{s}) + \epsilon $. \cite{Keunings2000}
+    \item QR:  $p = \bm{z_a\beta_a} + \eta(\bm{s}) + \epsilon $;
+\end{enumerate}
+
+Where:
+\begin{itemize}
+  \item $\eta(\bm{\cdot})$ -- a bivariate triogram function from $\bm{s} = (longitude,\; latitude)$;
+  \item $\mu(\bm{\cdot})$ -- spline basis function of $\bm{z_b} = (reviews, \;  bedrooms,\; bathrooms)$;
+  \item $\bm{z_i\beta_i}$ -- slope parameters for $\bm{z_a} = (overall \; satisfaction,\; reviews, \;  bedrooms,\; bathrooms)$ and $z_c = (overall \; satisfaction)$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Prediction process}
+\begin{columns}
+\begin{column}{0.45\textwidth}  %%<--- here
+    \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[width=0.9\textwidth]{empty map Seattle.png}
+     \caption{Seattle map as a raster object, where white areas represent water surface, green - soil}
+     \label{fig:5}
+     \end{figure}
+     \end{center}
+\end{column}
+
+\begin{column}{0.55\textwidth}
+    \begin{block}{Prediction steps}
+    {
+        \begin{enumerate}
+        \item Train model specifications from the previous page on based on the sample;
+        \item Create a grid-map of Seattle with 5.5 mln cells $\sim$ 15x15 m accounting for geographical borders;
+        \item Compute estimated prices for each cell given all non-spatial variables set to their medians.
+        \end{enumerate}
+    }
+    \end{block}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+\section{Results}
+\begin{frame}{GAM II fits the data better than alternatives, but QR delivers lower AIC}
+  \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.6\textheight]{GAM 1 2 QR.png}
+     \caption{Price surfaces obtained by GAM I, GAM II and QR}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+  \begin{center}    
+\begin{tabular}{ |p{1cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|  }
+ \hline 
+   & MLR & GAM I &GAM II &QR \\
+ \hline
+ R^2_{adj}& 0.36 & 0.38  & 0.51 &  0.39 \\
+ AIC & 79357 & 79109    & 77465 &   73610 \\
+ %RMSE & 75.79 &  xx  & xx   & xx\\
+ \hline
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Quantile effects in all continuous covariates as the estimated effects of the covariates change markedly over $\tau$}
+\begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.8\textheight]{QR vs LR coeff.png}
+     \caption{Diagnostic plot to check for quantile effects (ordinate) based on linear quantile regression of price of a one night stand on all predictors contained in the baseline multiple linear regression over a grid of $\tau$ (abscissa).}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\end{frame}
+
+\begin{frame}{For low budget properties proximity to the center is crucial, while for premium ones - proximity to the waterfront}
+  \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.6\textheight]{diff quant.png}
+     \caption{Price surfaces for $\tau = 0.1$, $\tau = 0.5$ and $\tau = 0.9$}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\begin{itemize}
+        \item GAM specification produce similar outputs;
+        \item QR captures more granular structure.
+\end{itemize}  
+\end{frame}
+
+\begin{frame}{Price structure aligns with the urban zoning plan and captures the CBD location}
+%Plausibility of results
+\begin{columns}
+\begin{column}{0.32\textwidth}  %%<--- here
+    \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[width=.9\textwidth]{Seattle sattilite.png}
+     \caption{Raster object representing the Seattle map}
+     \label{fig:5}
+     \end{figure}
+     \end{center}
+\end{column}
+
+\begin{column}{0.32\textwidth}
+    \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[width=1\textwidth]{QR surf.png}
+     \caption{Predicted price surface}
+     \label{fig:5}
+     \end{figure}
+     \end{center}
+\end{column}
+
+\begin{column}{0.32\textwidth}
+    \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[width=0.9\textwidth]{Seattle zoning.jpeg}
+     \caption{Zoning map \\
+     source: \href{https://www.seattle.gov/dpd/research/GIS/webplots/Smallzonemap.pdf}{City of Seattle} }
+     \label{fig:5}
+     \end{figure}
+     \end{center}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+\section{Conclusions}
+\begin{frame}{Conclusions \& Possible extensions}
+
+\begin{block}{Summary}
+    {
+        \begin{itemize}
+        \item All of the three model specifications provide sensible price surfaces;
+        \item QR seems to be more suitable w.r.t. skewed continuous predictors and captures more granular structure.
+        \end{itemize}
+    }
+    \end{block}
+    \begin{block}{Possible improvements}
+    {
+        \begin{itemize}
+        \item Grid search for hypo-parameters e.g. smoothing parameter;
+        \item K-Fold Cross-Validation of models performance (e.g. RMSE, AIC etc.);
+        \item Integration of categorical variables.
+        \end{itemize}
+    }
+    \end{block}
+    \begin{block}{Further research}
+    {
+        \begin{itemize}
+        \item Algorithms learning.
+        \end{itemize}
+    }
+    \end{block}
+\end{frame}
+
+\section*{} % Not belong to any section
+% REFERENCES
+\begin{frame}[allowframebreaks]\frametitle{References}
+    \bibliographystyle{ieeetr}
+    \bibliography{references}
+\end{frame}
+
+% ACKNOWLEGMENT
+\begin{frame}{Q\&A}
+ All used Data and Materials as well as R-Code and the slides are available at: \url{https://github.com/Kotikvkruge/Seattle_Airbnb}
+\end{frame}
+
+\begin{frame}{Appendix}
+\begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.86\textheight]{Properties from the Sample.png}
+     \caption{Location of listed Airbnb properties from the data sample}
+     \label{fig:1}
+     \end{figure}
+     \end{center}
+\end{frame}
+
+\end{document}
