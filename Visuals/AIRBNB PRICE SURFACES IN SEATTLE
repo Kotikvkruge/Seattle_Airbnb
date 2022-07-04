@@ -1,3 +1,77 @@
+\usepackage[utf8]{inputenc}
+\usepackage[font=footnotesize]{caption}
+\usepackage{hyperref}
+
+\usepackage{multirow}
+
+\usefonttheme[onlymath]{serif}
+
+\definecolor{universityblue}{RGB}{245, 150, 55}
+\definecolor{secondaryblue}{RGB}{247, 125, 0}
+\definecolor{universitygray}{RGB}{195, 189, 189}
+\definecolor{lightgray}{RGB}{220, 220, 210}
+
+\useinnertheme{circles}
+\useoutertheme[right]{sidebar}
+\usecolortheme{sidebartab}
+\usecolortheme[named=universityblue]{structure}
+
+\setbeamercolor{title}{bg=universityblue, fg=white}
+\setbeamercolor{author in head/foot}{bg=universitygray, fg=white}
+\setbeamercolor{sidebar right}{bg=universityblue, fg=white}
+\setbeamercolor{title in sidebar}{fg=white}
+\setbeamercolor{author in sidebar}{fg=white}
+\setbeamercolor{section in sidebar shaded}{fg=lightgray}
+\setbeamercolor{section in sidebar}{fg=white,bg=secondaryblue}
+\setbeamercolor{subsection in sidebar shaded}{fg=lightgray}
+\setbeamercolor{subsection in sidebar}{fg=white,bg=secondaryblue}
+\setbeamercolor{navigation symbols dimmed}{fg=white}
+
+\setbeamertemplate{navigation symbols}{}
+\makeatletter
+\setbeamertemplate{footline}{%
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=0.6\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+            \usebeamerfont{title in head/foot}%
+            \insertshortauthor ~ -- ~\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=0.3\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+            \usebeamerfont{title in head/foot}%
+            \vspace{-1.5pt}
+            \insertslidenavigationsymbol%
+            \insertframenavigationsymbol%
+            \insertsubsectionnavigationsymbol%
+            \insertsectionnavigationsymbol%
+            \insertdocnavigationsymbol%
+            \insertbackfindforwardnavigationsymbol%
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=0.1\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+            \usebeamerfont{title in head/foot}\insertframenumber/\inserttotalframenumber
+        \end{beamercolorbox}%
+    }
+}
+\makeatother
+
+% University logo and wordmark
+%\logo{\includegraphics[scale=0.05]{UofMpillarmark}}
+%\titlegraphic{\includegraphics[height=1cm]{UofMwordmark}}
+
+% Section title page
+\AtBeginSection[]{
+    \begin{frame}
+        \centering
+        \begin{beamercolorbox}[sep=16pt,center]{title}
+            \usebeamerfont{title}\insertsectionhead\par%
+        \end{beamercolorbox}
+    \end{frame}
+}
+
+% Superscript removal for hyperref recognition in pdf string
+\newcommand{\supersc}[1]{\texorpdfstring{\textsuperscript{#1}}{}}
+
+
+
 \documentclass[aspectratio=169,xcolor=svgnames]{beamer} 
 \usepackage{bm}
 \input{preambles}
@@ -9,11 +83,11 @@
 
 
 % DOCUMENT INFORMATION
-\title[PRICE SURFACES]{Airbnb price surfaces in Seattle}
-\subtitle{Generalized additive models} %optionall + QR
+\title[PRICE SURFACES]{Investigating Airbnb price surfaces for Seattle}
+\subtitle{via generalized additive models} %optionall + QR
 \author[Andrei Nevskii]{
 	Andrei Nevskii\supersc{1},
-	Prof. Dr. Markus Fritsch\supersc{2}
+	Markus Fritsch\supersc{2}
 }
 \institute[]{%
     \supersc{1}~Presenting student \\
@@ -46,8 +120,8 @@
 \begin{column}{0.45\textwidth}  %%<--- here
     \begin{center}
      \begin{figure}[ht]
-     \includegraphics[width=0.75\textwidth]{Cond mean Regensburg.png}
-     \caption{Price (rent) surface in Regensburg \cite{Knuth1986}}
+     \includegraphics[width=0.75\textwidth]{Properties from the Sample.png}
+     \caption{Location of listed Airbnb properties from the data sample}
      \label{fig:1}
      \end{figure}
      \end{center}
@@ -56,16 +130,16 @@
 \begin{column}{0.55\textwidth}
    \begin{block}{Objective}
     {
-    Partly reproduce results of (M. Fritsch, H. Haupt, and P. T. Ng, 2016) and predict 
+    Apply methodology of (M. Fritsch, H. Haupt, and P. T. Ng, 2016) and predict 
     price surfaces for Airbnb properties in Seattle.
     }
     \end{block}
     \begin{block}{Methodology}
     {
-    Applied techniques from the course:
         \begin{itemize}
+        \item Mean regression
         \item Quantile regression;
-        \item Uni- and bivariate smooth of predictors.
+        \item Uni- and bivariate smooth effects.
         \end{itemize}
     }
     \end{block}
@@ -120,19 +194,19 @@ With three exact specifications:
 
 Where:
 \begin{itemize}
-  \item $\eta(\bm{\cdot})$ -- a bivariate triogram function from $\bm{s} = (longitude,\; latitude)$;
-  \item $\mu(\bm{\cdot})$ -- spline basis function of $\bm{z_b} = (reviews, \;  bedrooms,\; bathrooms)$;
-  \item $\bm{z_i\beta_i}$ -- slope parameters for $\bm{z_a} = (overall \; satisfaction,\; reviews, \;  bedrooms,\; bathrooms)$ and $z_c = (overall \; satisfaction)$.
+  \item $\eta(\bm{\cdot})$ -- bivariate spline function of $\bm{s} = (lon,\; lat)$;
+  \item $\mu(\bm{\cdot})$ -- univariate spline function of $\bm{z_b} = (reviews, \;  beds,\; baths)$;
+  \item $\bm{z_i\beta_i}$ -- linear parametric effect of $\bm{z_a} = (satisfaction,\; reviews, \;  beds,\; baths)$ and $z_c = (satisfaction)$.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Prediction process}
+\begin{frame}{Prediction of price surface}
 \begin{columns}
 \begin{column}{0.45\textwidth}  %%<--- here
     \begin{center}
      \begin{figure}[ht]
      \includegraphics[width=0.9\textwidth]{empty map Seattle.png}
-     \caption{Seattle map as a raster object, where white areas represent water surface, green - soil}
+     \caption{Seattle map as a raster object, where white areas represent area covered by water, green by soil}
      \label{fig:5}
      \end{figure}
      \end{center}
@@ -154,24 +228,39 @@ Where:
 \end{frame}
 
 \section{Results}
-\begin{frame}{GAM II fits the data better than alternatives, but QR delivers lower AIC}
+\begin{frame}{GAM II fits the data the best, but suffers from overfitting}
   \begin{center}
      \begin{figure}[ht]
-     \includegraphics[height=0.6\textheight]{GAM 1 2 QR.png}
+     \includegraphics[height=0.69\textheight]{CV metric distributions}
+     \caption{Empirical distribution functions of $R^2$, MSE, MAE and AIC}
+     \label{fig:5}
+     \end{figure}
+     \end{center}
+     
+     \begin{itemize}
+        \item Computed by 100 Monte Carlo experiments with the train/test split 80\%/20\% (random sampling without replacement).
+        \end{itemize}
+\end{frame}
+
+%structure
+\begin{frame}{QR captures the more granular structure}
+  \begin{center}
+     \begin{figure}[ht]
+     \includegraphics[height=0.65\textheight]{GAM 1 2 QR.png}
      \caption{Price surfaces obtained by GAM I, GAM II and QR}
-     \label{fig:1}
+     \label{fig:6}
      \end{figure}
      \end{center}
   \begin{center}    
-\begin{tabular}{ |p{1cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|  }
- \hline 
-   & MLR & GAM I &GAM II &QR \\
- \hline
- R^2_{adj}& 0.36 & 0.38  & 0.51 &  0.39 \\
- AIC & 79357 & 79109    & 77465 &   73610 \\
+%\begin{tabular}{ |p{1cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|  }
+ %\hline 
+  % & MLR & GAM I &GAM II &QR \\
+ %\hline
+% R^2_{adj}& 0.36 & 0.38  & 0.51 &  0.39 \\
+ %AIC & 79357 & 79109    & 77465 &   73610 \\
  %RMSE & 75.79 &  xx  & xx   & xx\\
- \hline
-\end{tabular}
+% \hline
+%\end{tabular}
 \end{center}
 \end{frame}
 
@@ -179,7 +268,7 @@ Where:
 \begin{center}
      \begin{figure}[ht]
      \includegraphics[height=0.8\textheight]{QR vs LR coeff.png}
-     \caption{Diagnostic plot to check for quantile effects (ordinate) based on linear quantile regression of price of a one night stand on all predictors contained in the baseline multiple linear regression over a grid of $\tau$ (abscissa).}
+     \caption{Diagnostic plot to check for quantile effects (ordinate) based on linear quantile regression of price of a one night stay for all predictors contained in the baseline multiple linear regression over a grid of $\tau$ (abscissa).}
      \label{fig:1}
      \end{figure}
      \end{center}
@@ -206,7 +295,7 @@ Where:
     \begin{center}
      \begin{figure}[ht]
      \includegraphics[width=.9\textwidth]{Seattle sattilite.png}
-     \caption{Raster object representing the Seattle map}
+     \caption{Satellite image of Seattle}
      \label{fig:5}
      \end{figure}
      \end{center}
@@ -237,29 +326,21 @@ Where:
 \end{frame}
 
 \section{Conclusions}
-\begin{frame}{Conclusions \& Possible extensions}
+\begin{frame}{Conclusions \& possible extensions}
 
 \begin{block}{Summary}
     {
         \begin{itemize}
-        \item All of the three model specifications provide sensible price surfaces;
-        \item QR seems to be more suitable w.r.t. skewed continuous predictors and captures more granular structure.
+        \item All   three model specifications provide sensible price surfaces;
+        \item QR seems more suitable w.r.t. skewed continuous predictors and captures more granular structure.
         \end{itemize}
     }
     \end{block}
-    \begin{block}{Possible improvements}
+    \begin{block}{Possible extensions}
     {
         \begin{itemize}
-        \item Grid search for hypo-parameters e.g. smoothing parameter;
-        \item K-Fold Cross-Validation of models performance (e.g. RMSE, AIC etc.);
-        \item Integration of categorical variables.
-        \end{itemize}
-    }
-    \end{block}
-    \begin{block}{Further research}
-    {
-        \begin{itemize}
-        \item Algorithms learning.
+        \item Grid search for hyper-parameters e.g. smoothing parameter;
+        \item Inclusion of categorical predictors.
         \end{itemize}
     }
     \end{block}
@@ -275,16 +356,6 @@ Where:
 % ACKNOWLEGMENT
 \begin{frame}{Q\&A}
  All used Data and Materials as well as R-Code and the slides are available at: \url{https://github.com/Kotikvkruge/Seattle_Airbnb}
-\end{frame}
-
-\begin{frame}{Appendix}
-\begin{center}
-     \begin{figure}[ht]
-     \includegraphics[height=0.86\textheight]{Properties from the Sample.png}
-     \caption{Location of listed Airbnb properties from the data sample}
-     \label{fig:1}
-     \end{figure}
-     \end{center}
 \end{frame}
 
 \end{document}
